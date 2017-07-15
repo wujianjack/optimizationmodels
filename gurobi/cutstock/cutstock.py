@@ -76,7 +76,7 @@ try:
     
     print("               *** Column Generation Loop ***               \n")
     for i in range(MAX_CGTIME):
-        print("Iteration: ", i + 1, "\n")
+        print("Iteration: ", i, "\n")
         
         rmp.optimize()
         reportRMP(rmp)
