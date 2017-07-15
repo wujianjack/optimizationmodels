@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
         sub.addConstr(lexpr, GRB_LESS_EQUAL, rollwidth);
         // End SUB
         
-        cout << "               *** Main Loop ***               " << endl;
+        cout << "               *** Column Generation Loop ***               " << endl;
         for (int niter = 0; niter < MAX_CGTIME; ++niter) {
             cout << "Iteration: " << niter + 1 << endl;
             

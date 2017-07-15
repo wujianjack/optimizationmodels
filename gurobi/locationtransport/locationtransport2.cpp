@@ -247,7 +247,7 @@ int main(int argc, char *argv[]) {
                 
                 UB = min(UB, trans.get(GRB_DoubleAttr_ObjVal));
                 
-                // rest to initial bound
+                // reset to initial bound
                 for (int j = 0; j < ncites; ++j) {
                     build[j].set(GRB_DoubleAttr_LB, 0.0);
                     build[j].set(GRB_DoubleAttr_UB, 1.0);

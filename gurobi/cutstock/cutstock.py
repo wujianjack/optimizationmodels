@@ -29,7 +29,7 @@ def reportSUB(model):
     if model.status == GRB.OPTIMAL:
         print("Pi: ", model.objVal, "\n")
         
-        if model.ObjVal <= 1e-6:
+        if model.objVal <= 1e-6:
             var = model.getVars()
             
             for i in range(model.numVars):
@@ -74,7 +74,7 @@ try:
     sub.addConstr(quicksum(sub_var[i] * size[i] for i in range(nwidth)) <= rollwidth, "subcon")
     # end SUB
     
-    print("               *** Main Loop ***               \n")
+    print("               *** Column Generation Loop ***               \n")
     for i in range(MAX_CGTIME):
         print("Iteration: ", i + 1, "\n")
         

@@ -6,13 +6,13 @@
 **Version**: 7.5
 
 **Files**
-- locationtransport.cpp   Mathematical model for Location transportation problem using [`Lagrangian relaxation`](https://en.wikipedia.org/wiki/Lagrangian_relaxation) with [`C++ API`](http://www.gurobi.com/documentation/7.5/refman/cpp_api_overview.html#sec:C++)
-- locationtransport2.cpp  Mathematical model for Location transportation problem using [`Lagrangian relaxation`](https://en.wikipedia.org/wiki/Lagrangian_relaxation) with [`C++ API`](http://www.gurobi.com/documentation/7.5/refman/cpp_api_overview.html#sec:C++)
-- Makefile                NMake makefile
-- loctrans.dat            Test data
+- locationtransport.cpp:  Mathematical model for Location transportation problem using [`Lagrangian relaxation`](https://en.wikipedia.org/wiki/Lagrangian_relaxation) with [`C++ API`](http://www.gurobi.com/documentation/7.5/refman/cpp_api_overview.html#sec:C++)
+- locationtransport2.cpp: Mathematical model for Location transportation problem using [`Lagrangian relaxation`](https://en.wikipedia.org/wiki/Lagrangian_relaxation) with [`C++ API`](http://www.gurobi.com/documentation/7.5/refman/cpp_api_overview.html#sec:C++)
+- Makefile:               NMake makefile
+- loctrans.dat:           Test data
 
 **Note**
-- locationtransport.cpp and locationtransport2.cpp differ in implementation
+- `locationtransport.cpp` and `locationtransport2.cpp` differ in implementation
 
 **Contact**
  - `wujianjack2@163.com`      (personal)
