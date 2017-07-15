@@ -54,8 +54,8 @@ int main(int argc, char *argv[]) {
         GRBVar **ship = new GRBVar *[nwarehouse];
         for (size_t i = 0; i < nwarehouse; ++i)
             ship[i] = new GRBVar [nstore];
-		
-		GRBVar *sbuild = new GRBVar [nwarehouse];
+        
+        GRBVar *sbuild = new GRBVar [nwarehouse];
         
         GRBConstr *consupply = new GRBConstr [nwarehouse];
         GRBConstr *condemand = new GRBConstr [nstore];
@@ -90,8 +90,8 @@ int main(int argc, char *argv[]) {
             for (size_t j = 0; j < nstore; ++j)
                 ship[i][j] = sub.addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS, "ship_" + to_string(i) + "_" + to_string(j));
         
-		for (size_t i = 0; i < nwarehouse; ++i)
-			sbuild[i] = sub.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS, "sbuild_" + to_string(i));
+        for (size_t i = 0; i < nwarehouse; ++i)
+            sbuild[i] = sub.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS, "sbuild_" + to_string(i));
 		
         GRBLinExpr con_supply = 0.0;
         for (size_t i = 0; i < nwarehouse; ++i) {
@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) {
             
             consupply[i] = sub.addConstr(con_supply <= supply[i] * sbuild[i], "supply_" + to_string(i));
             con_supply = 0.0;
-		}
+        }
         
         GRBLinExpr con_demand = 0.0;
         for (size_t j = 0; j < nstore; ++j) {
@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
             
             condemand[j] = sub.addConstr(con_demand == demand[j], "demand_" + to_string(j));
             con_demand = 0.0;
-		}
+        }
         
         GRBLinExpr obj_shipcost = 0.0;
         for (size_t i = 0; i < nwarehouse; ++i)
@@ -127,37 +127,37 @@ int main(int argc, char *argv[]) {
         // set iteration limit
         size_t iterlimit = 100;
 		
-		// set 'sbuild' value for initial subproblem
-		for (size_t i = 0; i < nwarehouse; ++i) {
-			sbuild[i].set(GRB_DoubleAttr_LB, 1.0);
-			sbuild[i].set(GRB_DoubleAttr_UB, 1.0);
-		}
+        // set 'sbuild' value for initial subproblem
+        for (size_t i = 0; i < nwarehouse; ++i) {
+            sbuild[i].set(GRB_DoubleAttr_LB, 1.0);
+            sbuild[i].set(GRB_DoubleAttr_UB, 1.0);
+        }
         
         // main benders loop
         cout << "               *** Benders Decomposition Loop ***               " << endl;
         for (size_t iter = 0; iter < iterlimit; ++iter) {
-			cout << "Iteration: " << iter << endl;
-			
+            cout << "Iteration: " << iter << endl;
+            
             sub.optimize();
             
             if (sub.get(GRB_IntAttr_Status) == GRB_INFEASIBLE) {
-				cout << "Adding feasibility cut..." << endl;
-				cout << endl;
+                cout << "Adding feasibility cut..." << endl;
+                cout << endl;
 				
                 con_lazycut = 0.0;
                 
-				for (size_t i = 0; i < nwarehouse; ++i)
+                for (size_t i = 0; i < nwarehouse; ++i)
                     con_lazycut += consupply[i].get(GRB_DoubleAttr_FarkasDual) * supply[i] * mbuild[i];
                     
                 for (size_t j = 0; j < nstore; ++j)
                     con_lazycut += condemand[j].get(GRB_DoubleAttr_FarkasDual) * demand[j];
-				
-				master.addConstr(con_lazycut >= 0);
+                
+                master.addConstr(con_lazycut >= 0);
             }
             else if (sub.get(GRB_IntAttr_Status) == GRB_OPTIMAL) {
-				if (sub.get(GRB_DoubleAttr_ObjVal) > maxshipcost.get(GRB_DoubleAttr_X) + 1e-6) {
-					cout << "Adding optimality cut..." << endl;
-					cout << endl;
+                if (sub.get(GRB_DoubleAttr_ObjVal) > maxshipcost.get(GRB_DoubleAttr_X) + 1e-6) {
+                    cout << "Adding optimality cut..." << endl;
+                    cout << endl;
 					
                     con_lazycut = 0.0;
                     
@@ -169,8 +169,8 @@ int main(int argc, char *argv[]) {
                 
                     master.addConstr(maxshipcost >= con_lazycut);
                 }
-				else
-					break;
+                else
+                    break;
             }
             else
                 break;
@@ -179,28 +179,28 @@ int main(int argc, char *argv[]) {
             
             for (size_t i = 0; i < nwarehouse; ++i) {
                 sbuild[i].set(GRB_DoubleAttr_LB, mbuild[i].get(GRB_DoubleAttr_X));
-				sbuild[i].set(GRB_DoubleAttr_UB, mbuild[i].get(GRB_DoubleAttr_X));
-			}
+                sbuild[i].set(GRB_DoubleAttr_UB, mbuild[i].get(GRB_DoubleAttr_X));
+            }
         }
         cout << "               *** End Loop ***               " << endl;
         
         // display solution
-		cout << endl;
+        cout << endl;
         cout << "              *** Summary Report ***               " << endl;
-		printf("Objective: %.6f\n", sub.get(GRB_DoubleAttr_ObjVal));
-		cout << endl;
-		cout << "Variables:: " << endl;
+        printf("Objective: %.6f\n", sub.get(GRB_DoubleAttr_ObjVal));
+        cout << endl;
+        cout << "Variables:: " << endl;
         for (size_t i = 0; i < nwarehouse; ++i) {
-			if (fabs(mbuild[i].get(GRB_DoubleAttr_X)) > 1e-6)
-				printf("  Build[%d] = %.0f\n", i, mbuild[i].get(GRB_DoubleAttr_X));
-		}
+            if (fabs(mbuild[i].get(GRB_DoubleAttr_X)) > 1e-6)
+                printf("  Build[%d] = %.0f\n", i, mbuild[i].get(GRB_DoubleAttr_X));
+        }
         cout << endl;
                
         for (size_t i = 0; i < nwarehouse; ++i) {
             for (size_t j = 0; j < nstore; ++j) {
-				if (fabs(ship[i][j].get(GRB_DoubleAttr_X)) > 1e-6)
+                if (fabs(ship[i][j].get(GRB_DoubleAttr_X)) > 1e-6)
                     printf("  Ship[%d][%d] = %.6f\n", i, j, ship[i][j].get(GRB_DoubleAttr_X));
-			}
+            }
         }
 		cout << endl;
         
