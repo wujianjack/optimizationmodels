@@ -6,7 +6,7 @@
 **Version**: 11.0
 
 **Files**
-- peak.c: Demo usage of ['C API'](http://www.lindo.com/downloads/PDF/API.pdf)
+- peak.c: Implementation for `peak.lng` using [`C API`](http://www.lindo.com/downloads/PDF/API.pdf)
 - Makefile: NMake makefile
 
 **Contact**
