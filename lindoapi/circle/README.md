@@ -6,7 +6,7 @@
 **Version**: 11.0
 
 **Files**
-- peak.c: Implementation for `peak.lng` using [`C API`](http://www.lindo.com/downloads/PDF/API.pdf) with `Local/Global Optimizer`
+- circle.c: Implementation for `circle.lng` using [`C API`](http://www.lindo.com/downloads/PDF/API.pdf) with `Multistart Optimizer`
 - Makefile: NMake makefile
 
 **Contact**
@@ -15,4 +15,4 @@
 
  **Wu Jian**
  
- `July 15th, 2017`
+ `July 16th, 2017`

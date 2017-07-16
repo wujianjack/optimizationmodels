@@ -1,0 +1,24 @@
+MODEL:
+
+SETS:
+  DIM: X, Y;
+ENDSETS
+
+DATA:
+  DIM = 1..5;
+  C = 5;
+ENDDATA
+
+MAX = R;
+
+@FOR(DIM(I): @FOR(DIM(J)| J #GT# I: (X(I) - X(J))^2 + (Y(I) - Y(J))^2 >= 4*R^2));
+
+@FOR(DIM(I): X(I)^2 + Y(I)^2 <= (C - R)^2);
+
+@FOR(DIM(I): X(I) >= R - C; X(I) <= C - R);
+@FOR(DIM(I): Y(I) >= R - C; Y(I) <= C - R);
+
+@FOR(DIM(I): @BND(-C, X(I), C); @BND(-C, Y(I), C));
+@BND(0, R, C); 
+
+END
