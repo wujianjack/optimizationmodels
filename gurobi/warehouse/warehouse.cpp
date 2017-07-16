@@ -187,7 +187,7 @@ int main(int argc, char *argv[]) {
         // display solution
         cout << endl;
         cout << "              *** Summary Report ***               " << endl;
-        printf("Objective: %.6f\n", sub.get(GRB_DoubleAttr_ObjVal));
+        printf("Objective: %.6f\n", master.get(GRB_DoubleAttr_ObjVal));
         cout << endl;
         cout << "Variables:: " << endl;
         for (size_t i = 0; i < nwarehouse; ++i) {
