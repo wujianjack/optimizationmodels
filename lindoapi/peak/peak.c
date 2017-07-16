@@ -222,7 +222,6 @@ int main(int argc, char *argv[]) {
     int i, status, nvars;
     double pobjval;
     double *primal;
-    char *cStatus;
 
     /* Report the status of solution */
     nErrorCode = LSgetInfo(pModel, LS_IINFO_MODEL_STATUS, &status);
