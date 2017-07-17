@@ -13,16 +13,16 @@
 using namespace std;
 
 double relaxUB(GRBModel &model);
-double calculateNorm(double *slack, int ncites);
-void reportLog(double *LBlog, double *UBlog, double *scalelog, double *steplog, int count);
+double calculateNorm(double *slack, size_t ncites);
+void reportLog(double *LBlog, double *UBlog, double *scalelog, double *steplog, size_t count);
 
 int main(int argc, char *argv[]) {
     try {
         // Input data
         ifstream data("loctrans.dat");
         
-        int buildlimit = 0;
-        int ncites = 0;
+        size_t buildlimit = 0;
+        size_t ncites = 0;
         
         data >> buildlimit;
         data >> ncites;
@@ -31,26 +31,26 @@ int main(int argc, char *argv[]) {
         double *demand = new double [ncites];
         
         double **shipcost = new double *[ncites];
-        for (int i = 0; i < ncites; ++i)
+        for (size_t i = 0; i < ncites; ++i)
             shipcost[i] = new double [ncites];
         
-        for (int i = 0; i < ncites; ++i)
+        for (size_t i = 0; i < ncites; ++i)
             data >> supply[i];
         
-        for (int i = 0; i < ncites; ++i)
+        for (size_t i = 0; i < ncites; ++i)
             data >> demand[i];
         
-        for (int i = 0; i < ncites; ++i)
-            for (int j = 0; j < ncites; ++j)
+        for (size_t i = 0; i < ncites; ++i)
+            for (size_t j = 0; j < ncites; ++j)
                 data >> shipcost[i][j];
         
         data.close();
        // End data
         
         // Define parameters
-        int iterlimit = 200;
-        int samelimit = 3;
-        int same = 0;
+        size_t iterlimit = 200;
+        size_t samelimit = 3;
+        size_t same = 0;
         double norm = 0.0;
         double step = 0.0;
         double scale = 1.0;
@@ -65,12 +65,12 @@ int main(int argc, char *argv[]) {
         // End parameters
         
         // Initialize parameters
-        for (int i = 0; i < iterlimit; ++i) {
+        for (size_t i = 0; i < iterlimit; ++i) {
             LBlog[i] = 0.0;
             UBlog[i] = 0.0;
         }
         
-        for (int i = 0; i < ncites; ++i) {
+        for (size_t i = 0; i < ncites; ++i) {
             lambda[i] = 0.0;
             slack[i] = 0.0;
         }
@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
         GRBModel trans = GRBModel(env);
         
         GRBVar **ship = new GRBVar *[ncites];
-        for (int i = 0; i < ncites; ++i)
+        for (size_t i = 0; i < ncites; ++i)
             ship[i] = new GRBVar [ncites];
         
         GRBVar *build = new GRBVar[ncites];
@@ -88,17 +88,17 @@ int main(int argc, char *argv[]) {
         
         trans.set(GRB_IntParam_OutputFlag, 0);
         
-        for (int i = 0; i < ncites; ++i) {
-            for (int j = 0; j < ncites; ++j)
+        for (size_t i = 0; i < ncites; ++i) {
+            for (size_t j = 0; j < ncites; ++j)
                 ship[i][j] = trans.addVar(0.0, demand[j], 0.0, GRB_INTEGER, "ship_" + to_string(i) + "_" + to_string(j));
         }
         
-        for (int i = 0; i < ncites; ++i)
+        for (size_t i = 0; i < ncites; ++i)
             build[i] = trans.addVar(0.0, 1.0, 0.0, GRB_BINARY, "build_" + to_string(i));
         
         GRBLinExpr con_supply = 0.0;
-        for (int i = 0; i < ncites; ++i) {
-            for (int j = 0; j < ncites; ++j)
+        for (size_t i = 0; i < ncites; ++i) {
+            for (size_t j = 0; j < ncites; ++j)
                 con_supply += ship[i][j];
             
             trans.addConstr(con_supply <= supply[i] * build[i], "supply_" + to_string(i));
@@ -109,14 +109,14 @@ int main(int argc, char *argv[]) {
         trans.update();
         
         GRBLinExpr con_limit = 0.0;
-        for (int i = 0; i < ncites; ++i)
+        for (size_t i = 0; i < ncites; ++i)
             con_limit += build[i];
         
         trans.addConstr(con_limit <= buildlimit, string("limit"));
         
         GRBLinExpr con_demand = 0.0;
-        for (int j = 0; j < ncites; ++j) {
-            for (int i = 0; i < ncites; ++i)
+        for (size_t j = 0; j < ncites; ++j) {
+            for (size_t i = 0; i < ncites; ++i)
                 con_demand += ship[i][j];
             
             relax[j] = trans.addConstr(con_demand >= demand[j], "demand_" + to_string(j));
@@ -124,8 +124,8 @@ int main(int argc, char *argv[]) {
         }
         
         GRBLinExpr obj_shipcost = 0.0;
-        for (int i = 0; i < ncites; ++i) {
-            for (int j = 0; j < ncites; ++j)
+        for (size_t i = 0; i < ncites; ++i) {
+            for (size_t j = 0; j < ncites; ++j)
                 obj_shipcost += ship[i][j] * shipcost[i][j];
         }
         
@@ -136,10 +136,10 @@ int main(int argc, char *argv[]) {
         
         // initial 'UB'
         double *rowmax = new double [ncites];
-        for (int i = 0; i < ncites; ++i)
+        for (size_t i = 0; i < ncites; ++i)
             rowmax[i] = *max_element(shipcost[i], shipcost[i] + ncites);
     
-        for (int i = 0; i < ncites; ++i)
+        for (size_t i = 0; i < ncites; ++i)
             UB += rowmax[i];
         
         delete [] rowmax;
@@ -147,25 +147,25 @@ int main(int argc, char *argv[]) {
         GRBLinExpr obj_lagrange = 0.0;
         GRBLinExpr sum_ship = 0.0;
         
-        int lbmodel = 0;
+        size_t lbmodel = 0;
         double sumshipval = 0.0;
         double sumsbval = 0.0;
         double sumdemand = 0.0;
         // main lagrange relaxation loop
         cout << "               *** Larange Relaxation ***               " << endl;
-        for (int i = 0; i < iterlimit; ++i) {
+        for (size_t i = 0; i < iterlimit; ++i) {
             // solve lower bound
             if (lbmodel == 0) {
                 lbmodel = 1;
                 
-                for (int j = 0; j < ncites; ++j)
+                for (size_t j = 0; j < ncites; ++j)
                     trans.remove(relax[j]);
             }
             
             obj_lagrange = 0.0;
             sum_ship = 0.0;
-            for (int j = 0; j < ncites; ++j) {
-                for (int ii = 0; ii < ncites; ++ii) 
+            for (size_t j = 0; j < ncites; ++j) {
+                for (size_t ii = 0; ii < ncites; ++ii) 
                     sum_ship += ship[ii][j];
                     
                 obj_lagrange += lambda[j] * (demand[j] - sum_ship);
@@ -178,10 +178,10 @@ int main(int argc, char *argv[]) {
             trans.optimize();
             
             // calculate 'slack'
-            for (int j = 0; j < ncites; ++j) {
+            for (size_t j = 0; j < ncites; ++j) {
                 sumshipval = 0.0;
                 
-                for (int ii = 0; ii < ncites; ++ii)
+                for (size_t ii = 0; ii < ncites; ++ii)
                     sumshipval += ship[ii][j].get(GRB_DoubleAttr_X);
                 
                 slack[j] = sumshipval - demand[j];
@@ -208,7 +208,7 @@ int main(int argc, char *argv[]) {
             step = scale * (UB - trans.get(GRB_DoubleAttr_ObjVal)) / norm;
             
             // update 'lambda'
-            for (int j = 0; j < ncites; ++j) {
+            for (size_t j = 0; j < ncites; ++j) {
                 if (lambda[j] > (step * slack[j]))
                     lambda[j] -= step * slack[j];
                 else
@@ -217,18 +217,18 @@ int main(int argc, char *argv[]) {
             
             // solve upper bound
             sumsbval = 0.0;
-            for (int j = 0; j < ncites; ++j)
+            for (size_t j = 0; j < ncites; ++j)
                 sumsbval += supply[j] * build[j].get(GRB_DoubleAttr_X);
             
             sumdemand = 0.0;
-            for (int j = 0; j < ncites; ++j)
+            for (size_t j = 0; j < ncites; ++j)
                 sumdemand += demand[j];
             
             if (sumsbval - sumdemand >= -1e-6) {
                 lbmodel = 0;
                 con_demand = 0.0;
-                for (int j = 0; j < ncites; ++j) {
-                    for (int ii = 0; ii < ncites; ++ii)
+                for (size_t j = 0; j < ncites; ++j) {
+                    for (size_t ii = 0; ii < ncites; ++ii)
                         con_demand += ship[ii][j];
             
                     relax[j] = trans.addConstr(con_demand >= demand[j], "demand_" + to_string(j));
@@ -236,7 +236,7 @@ int main(int argc, char *argv[]) {
                 }
                 
                 // retrieve solution from LB model and fix it
-                for (int j = 0; j < ncites; ++j) {
+                for (size_t j = 0; j < ncites; ++j) {
                     build[j].set(GRB_DoubleAttr_LB, build[j].get(GRB_DoubleAttr_X));
                     build[j].set(GRB_DoubleAttr_UB, build[j].get(GRB_DoubleAttr_X));
                 }
@@ -247,8 +247,8 @@ int main(int argc, char *argv[]) {
                 
                 UB = min(UB, trans.get(GRB_DoubleAttr_ObjVal));
                 
-                // rest to initial bound
-                for (int j = 0; j < ncites; ++j) {
+                // reset to initial bound
+                for (size_t j = 0; j < ncites; ++j) {
                     build[j].set(GRB_DoubleAttr_LB, 0.0);
                     build[j].set(GRB_DoubleAttr_UB, 1.0);
                 }
@@ -267,11 +267,13 @@ int main(int argc, char *argv[]) {
         delete [] supply;
         delete [] demand;
         
-        for (int i = 0; i < ncites; ++i)
+        for (size_t i = 0; i < ncites; ++i)
             delete [] shipcost[i];
+        delete [] shipcost;
         
-        for (int i = 0; i < ncites; ++i)
+        for (size_t i = 0; i < ncites; ++i)
             delete [] ship[i];
+        delete [] ship;
         
         delete [] build;
         delete [] relax;
@@ -295,11 +297,11 @@ int main(int argc, char *argv[]) {
 
 double relaxUB(GRBModel &model) {
     double LB = 0.0;
-    int numvars = model.get(GRB_IntAttr_NumVars);
+    size_t numvars = model.get(GRB_IntAttr_NumVars);
     char *vtype = new char [numvars];
     GRBVar *vars = model.getVars();
     
-    for (int i = 0; i < numvars; ++i) {
+    for (size_t i = 0; i < numvars; ++i) {
         vtype[i] = vars[i].get(GRB_CharAttr_VType);
         vars[i].set(GRB_CharAttr_VType, GRB_CONTINUOUS);
     }
@@ -308,7 +310,7 @@ double relaxUB(GRBModel &model) {
     
     LB = model.get(GRB_DoubleAttr_ObjVal);
     
-    for (int i = 0; i < numvars; ++i)
+    for (size_t i = 0; i < numvars; ++i)
         vars[i].set(GRB_CharAttr_VType, vtype[i]);
     
     delete [] vtype;
@@ -316,19 +318,19 @@ double relaxUB(GRBModel &model) {
     return LB;
 }
 
-double calculateNorm(double *slack, int ncites) {
+double calculateNorm(double *slack, size_t ncites) {
     double norm = 0.0;
     
-    for (int i = 0; i < ncites; ++i)
+    for (size_t i = 0; i < ncites; ++i)
         norm += pow(slack[i], 2.0);
     
     return norm;
 }
 
-void reportLog(double *LBlog, double *UBlog, double *scalelog, double *steplog, int count) {
+void reportLog(double *LBlog, double *UBlog, double *scalelog, double *steplog, size_t count) {
     printf("\n                *** Summary Report ***               \n");
     printf("  Iter        LB              UB          scale        step\n");
     
-    for (int i = 0; i < count; ++i)
+    for (size_t i = 0; i < count; ++i)
         printf(" %3d    %12.6f    %12.6f    %8.6f    %8.6f\n", i, LBlog[i], UBlog[i], scalelog[i], steplog[i]);
 }
