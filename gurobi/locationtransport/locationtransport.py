@@ -123,7 +123,10 @@ class LocationTransport:
             # solve lower bound
             if lbmodel == 0:
                 lbmodel = 1
-                self.mtrans.remove(self.crelax)
+                
+                lenrelax = len(self.crelax)
+                for i in range(lenrelax):
+                    self.mtrans.remove(self.crelax[i])
                 self.crelax = []
             
             obj_lagrangian = GRBPY.quicksum(xlambda[j] * (self.demand[j] - \
